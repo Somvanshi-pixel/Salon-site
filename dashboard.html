@@ -1,0 +1,62 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Salon dashboard</title><meta name="robots" content="noindex"><meta name="theme-color" content="#5B2A6E">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F5F0F8;--ink:#2A1E35;--mut:#74687F;--pl:#6B2D86;--mint:#1F9A89;--red:#C0392B;--amb:#B7791F;--card:#fff;--ln:#EADFF0;--sh:0 4px 16px rgba(107,45,134,.08)}
+@media(prefers-color-scheme:dark){:root{--bg:#150E1D;--ink:#F3ECF7;--mut:#A99BB5;--pl:#C58BE0;--mint:#4FD1BE;--red:#F28B82;--amb:#F6C560;--card:#21172E;--ln:#3A2D4A;--sh:0 4px 16px rgba(0,0,0,.3)}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 'DM Sans',system-ui,sans-serif}
+[hidden]{display:none!important}
+.hd{padding:26px 20px 34px;color:#fff;background:radial-gradient(circle at 90% 10%,rgba(255,255,255,.22),transparent 40%),linear-gradient(135deg,#3F1858,#A8349A);border-radius:0 0 28px 28px}
+.hd b{font:600 22px Fraunces,Georgia,serif;display:block}.hd small{opacity:.85}
+main{max-width:640px;margin:auto;padding:16px 14px 100px}h1{font:600 24px Fraunces,Georgia,serif;margin:6px 0 14px}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:var(--sh)}
+.bk{display:flex;gap:12px}.av{width:42px;height:42px;flex:none;border-radius:50%;background:linear-gradient(135deg,#6B2D86,#B0399B);color:#fff;display:grid;place-items:center;font-weight:700;font-size:17px}
+.mut{color:var(--mut);font-size:13px}.row{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:-4px 0 14px}.stats .card{margin:0}.stats b{font-size:24px;display:block}
+.stats .card:nth-child(1){border-left:4px solid var(--pl)}.stats .card:nth-child(2){border-left:4px solid var(--mint)}.stats .card:nth-child(3){border-left:4px solid var(--amb)}.stats .card:nth-child(4){border-left:4px solid var(--red)}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);box-shadow:0 -6px 20px rgba(107,45,134,.12);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;padding:9px 0 10px;border:0;background:none;color:var(--mut);font:700 12px 'DM Sans',sans-serif;cursor:pointer}nav button span{display:block;font-size:20px}nav button.on{color:var(--pl);box-shadow:inset 0 3px var(--pl)}
+input,select{width:100%;padding:13px;border:1.5px solid var(--ln);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit;margin-bottom:9px}
+input:focus{border-color:var(--pl);outline:0}:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
+.b{padding:8px 12px;border-radius:10px;border:1.5px solid var(--ln);background:var(--bg);color:var(--ink);font:600 13px 'DM Sans',sans-serif;cursor:pointer;margin:10px 6px 0 0}
+.p{background:linear-gradient(135deg,#6B2D86,#B0399B);color:#fff;border:0;padding:13px 18px;font-size:15px}
+.tag{font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:color-mix(in srgb,currentColor 14%,transparent)}
+.confirmed{color:var(--pl)}.completed{color:var(--mint)}.cancelled,.noshow{color:var(--red)}.pending{color:var(--amb)}
+.bar{height:10px;background:linear-gradient(90deg,#6B2D86,#B0399B);border-radius:5px;min-width:3px}.err{color:var(--red);min-height:20px}
+summary{cursor:pointer}a{color:var(--pl)}
+</style></head><body><header class="hd" id="hd" hidden></header><main id="v"></main><nav id="nv" hidden></nav>
+<script>
+addEventListener('error',e=>{const d=document.createElement('div');d.style='position:fixed;top:0;left:0;right:0;background:#C0392B;color:#fff;padding:8px 12px;font:13px sans-serif;z-index:99';d.textContent='Page error: '+e.message;document.body.append(d)});
+const CFG={API:'',salon:'Your Salon Name'}; // API='' = demo mode, PIN: 1234
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const iso=d=>d.toISOString().slice(0,10),inr=n=>'₹'+Number(n||0).toLocaleString('en-IN');
+const ST={get:k=>{try{return sessionStorage.getItem(k)}catch{return window['_'+k]}},set:(k,v)=>{try{sessionStorage.setItem(k,v)}catch{window['_'+k]=v}},del:k=>{try{sessionStorage.removeItem(k)}catch{window['_'+k]=''}}};
+let pin=ST.get('pin')||'',tab='today',date=iso(new Date()),q='';
+const B=[{id:'BK1',time:'10:00',name:'Riya Sharma',phone:'9876500001',service:'Haircut',amount:300,paid:true,status:'completed'},{id:'BK2',time:'11:30',name:'Amit Verma',phone:'9876500002',service:'Facial',amount:800,paid:false,status:'confirmed'},{id:'BK3',time:'15:00',name:'Neha Singh',phone:'9876500003',service:'Hair spa',amount:1200,paid:false,status:'confirmed'}];
+const C=[{name:'Riya Sharma',phone:'9876500001',visits:6,spend:3100,last:'2026-10-08',next:'—',notes:'Prefers Anita',pref:'Haircut'},{name:'Amit Verma',phone:'9876500002',visits:1,spend:0,last:'—',next:'Today 11:30',notes:'',pref:'Facial'}];
+async function api(action,data={}){if(!CFG.API){if(pin!=='1234')throw 401;await new Promise(r=>setTimeout(r,200));
+ if(action=='customers')return C;if(action=='reports')return{week:[2400,1800,3100,2600,0,4200,1500].map((r,i)=>({d:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i],rev:r})),newc:9,ret:21,top:[{s:'Haircut',n:34},{s:'Facial',n:18},{s:'Hair spa',n:11}]};
+ if(action=='today'||action=='bookings')return{bookings:B,revenue:300,outstanding:2000};return{ok:true}}
+ const r=await fetch(CFG.API+'/dash',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin,action,...data})});if(r.status==401)throw 401;if(!r.ok)throw 0;const j=await r.json();return Array.isArray(j)&&action!='customers'?(j[0]||{}):j}
+function login(msg=''){$('#nv').hidden=true;$('#hd').hidden=true;$('#v').innerHTML=`<h1>${esc(CFG.salon)}</h1><div class="card"><p>Enter your PIN to open the dashboard.</p>${CFG.API?'':'<p class="mut">Demo mode: PIN is 1234.</p>'}<input id="pn" type="text" inputmode="numeric" placeholder="PIN" autocomplete="off" autocapitalize="off" style="-webkit-text-security:disc;text-security:disc"><div class="err">${msg}</div><button class="b p" id="go">Open dashboard</button></div>`;
+ $('#go').onclick=()=>{pin=$('#pn').value;ST.set('pin',pin);show('today')};$('#pn').onkeydown=e=>{if(e.key=='Enter')$('#go').click()}}
+async function show(t){tab=t;const nv=$('#nv');nv.hidden=false;const hd=$('#hd');hd.hidden=false;hd.innerHTML=`<b>${esc(CFG.salon)}</b><small>${new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})}</small>`;nv.innerHTML=[['today','Today'],['bookings','Bookings'],['customers','Customers'],['reports','Reports']].map(([k,l])=>`<button class="${k==t?'on':''}" data-t="${k}"><span>${{today:'🏠',bookings:'📅',customers:'👥',reports:'📊'}[k]}</span>${l}</button>`).join('');
+ nv.querySelectorAll('button').forEach(b=>b.onclick=()=>show(b.dataset.t));$('#v').innerHTML='<p class="mut">Loading…</p>';
+ try{const d=await api(t,t=='bookings'?{date}:{});({today:rToday,bookings:rBook,customers:rCust,reports:rRep})[t](d)}
+ catch(e){e===401?(ST.del('pin'),login('Wrong PIN. Try again.')):$('#v').innerHTML='<div class="card">Could not load data. Check your connection and <button class="b" onclick="show(tab)">retry</button></div>'}}
+const list=a=>a.length?a.map(b=>`<div class="card bk"><div class="av">${esc((b.name||'?')[0])}</div><div style="flex:1;min-width:0"><div class="row"><b>${esc(b.time)} · ${esc(b.name)}</b><span class="tag ${esc(b.status)}">${esc(b.status)}</span></div><div class="mut">${esc(b.service)} · ${inr(b.amount)} · ${b.paid?'Paid':'Unpaid'} · <a href="tel:${esc(b.phone)}">${esc(b.phone)}</a></div>
+${['completed','noshow','cancelled'].filter(s=>s!=b.status).map(s=>`<button class="b" data-id="${esc(b.id)}" data-s="${s}">${{completed:'Mark done',noshow:'No-show',cancelled:'Cancel'}[s]}</button>`).join('')}${b.paid?'':`<button class="b" data-id="${esc(b.id)}" data-s="paid">Mark paid</button>`}</div></div>`).join(''):'<div class="card mut">No bookings yet. Share your booking link on Instagram to get started.</div>';
+function wire(){document.querySelectorAll('[data-s]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await api('status',{id:b.dataset.id,status:b.dataset.s});show(tab)}catch{b.disabled=false;alert('Update failed. Try again.')}})}
+function rToday(d){const n=s=>d.bookings.filter(b=>b.status==s).length;$('#v').innerHTML=`<h1>Today</h1><div class="stats"><div class="card"><b>${d.bookings.length}</b><span class="mut">Bookings</span></div><div class="card"><b>${inr(d.revenue)}</b><span class="mut">Revenue</span></div><div class="card"><b>${n('completed')} / ${n('confirmed')+n('pending')}</b><span class="mut">Done / pending</span></div><div class="card"><b>${inr(d.outstanding)}</b><span class="mut">Outstanding</span></div></div>${list(d.bookings)}`;wire()}
+function rBook(d){$('#v').innerHTML=`<h1>Bookings</h1><input type="date" id="bd" value="${date}">${list(d.bookings)}<h1 style="font-size:20px;margin-top:20px">Add booking</h1><div class="card"><input id="an" placeholder="Customer name"><input id="ap" placeholder="Mobile number" inputmode="numeric" maxlength="10"><input id="as" placeholder="Service"><input id="at" type="time"><div class="err" id="ae"></div><button class="b p" id="ab">Save booking</button></div>`;
+ $('#bd').onchange=e=>{date=e.target.value;show('bookings')};wire();
+ $('#ab').onclick=async()=>{const x={name:$('#an').value.trim(),phone:$('#ap').value,service:$('#as').value.trim(),time:$('#at').value,date};if(!x.name||!/^\d{10}$/.test(x.phone)||!x.service||!x.time)return $('#ae').textContent='Fill name, 10-digit mobile, service and time.';
+  try{await api('add',x);show('bookings')}catch{$('#ae').textContent='Could not save. Try again.'}}}
+function rCust(d){$('#v').innerHTML=`<h1>Customers</h1><input id="sq" placeholder="Search by name or phone" value="${esc(q)}"><div id="cl"></div>`;const r=()=>{const f=d.filter(c=>(c.name+c.phone).toLowerCase().includes(q.toLowerCase()));
+ $('#cl').innerHTML=f.map(c=>`<details class="card"><summary class="row"><b>${esc(c.name)}</b><span class="mut">${c.visits} visits · ${inr(c.spend)}</span></summary><div class="mut" style="margin-top:8px">Phone: <a href="tel:${esc(c.phone)}">${esc(c.phone)}</a><br>Last visit: ${esc(c.last)}<br>Next: ${esc(c.next)}<br>Prefers: ${esc(c.pref)}<br>Notes: ${esc(c.notes||'—')}</div></details>`).join('')||'<div class="card mut">No customer found. Customers appear here after their first booking.</div>'};
+ r();$('#sq').oninput=e=>{q=e.target.value;r()}}
+function rRep(d){const m=Math.max(...d.week.map(w=>w.rev),1),t=Math.max(...d.top.map(x=>x.n),1);$('#v').innerHTML=`<h1>Reports</h1><div class="card"><b>Revenue this week</b>${d.week.map(w=>`<div class="row" style="margin-top:6px"><span class="mut" style="width:36px">${w.d}</span><div style="flex:1"><div class="bar" style="width:${w.rev/m*100}%"></div></div><span style="width:70px;text-align:right">${inr(w.rev)}</span></div>`).join('')}</div>
+<div class="stats"><div class="card"><b>${d.newc}</b><span class="mut">New customers</span></div><div class="card"><b>${d.ret}</b><span class="mut">Returning</span></div></div>
+<div class="card"><b>Most popular services</b>${d.top.map(x=>`<div class="row" style="margin-top:6px"><span style="width:90px">${esc(x.s)}</span><div style="flex:1"><div class="bar" style="width:${x.n/t*100}%"></div></div><span style="width:30px;text-align:right">${x.n}</span></div>`).join('')}</div>`}
+pin?show('today'):login();
+</script></body></html>
