@@ -1,0 +1,59 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Book an appointment</title><meta name="theme-color" content="#5B2A6E">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FBF8FC;--ink:#2A1E35;--mut:#74687F;--pl:#6B2D86;--mint:#1F9A89;--card:#fff;--ln:#EADFF0;--sh:0 8px 24px rgba(107,45,134,.10)}
+@media(prefers-color-scheme:dark){:root{--bg:#150E1D;--ink:#F3ECF7;--mut:#A99BB5;--pl:#C58BE0;--mint:#4FD1BE;--card:#21172E;--ln:#3A2D4A;--sh:0 8px 24px rgba(0,0,0,.35)}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 'DM Sans',system-ui,sans-serif}
+main{max-width:520px;margin:auto;padding:0 0 110px}
+.hero{padding:38px 22px 70px;color:#fff;background:radial-gradient(circle at 88% 12%,rgba(255,255,255,.25),transparent 38%),radial-gradient(circle at 5% 100%,rgba(255,200,240,.25),transparent 40%),linear-gradient(135deg,#3F1858,#A8349A);border-radius:0 0 34px 34px}
+h1{font:600 32px/1.1 Fraunces,Georgia,serif;margin:0 0 12px}.hero p{margin:0 0 6px;opacity:.9;font-size:14px}
+.chip{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:7px 14px;font-size:13px;color:#fff;text-decoration:none;margin:8px 8px 0 0;font-weight:500}
+.panel{background:var(--card);border-radius:22px;box-shadow:var(--sh);padding:4px 16px 20px;margin:-38px 14px 0;position:relative}
+h2{font-size:16px;margin:24px 0 12px;display:flex;gap:10px;align-items:center}
+h2 i{font-style:normal;width:26px;height:26px;border-radius:50%;background:var(--pl);color:#fff;font-size:13px;display:grid;place-items:center}
+.mut{color:var(--mut);font-size:14px}.row{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.svc{display:flex;gap:12px;align-items:center;background:var(--bg);border:1.5px solid var(--ln);border-radius:14px;padding:12px;margin-bottom:9px;cursor:pointer;transition:.15s}
+.svc.on{border-color:var(--pl);background:color-mix(in srgb,var(--pl) 9%,var(--card))}
+.ic{width:42px;height:42px;border-radius:12px;background:var(--card);display:grid;place-items:center;font-size:21px;box-shadow:var(--sh)}
+.svc input{accent-color:var(--pl);width:20px;height:20px;order:3}.svc b{display:block}
+input[type=text],input[type=tel],input[type=date]{width:100%;padding:14px;border:1.5px solid var(--ln);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit;margin-bottom:10px}
+input:focus{border-color:var(--pl);outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--pl) 20%,transparent)}
+:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:2px}
+.slot{padding:11px 0;border:1.5px solid var(--ln);border-radius:12px;background:var(--bg);color:var(--ink);font:600 14px 'DM Sans',sans-serif;cursor:pointer}
+.slot.on{background:linear-gradient(135deg,#6B2D86,#B0399B);color:#fff;border-color:transparent}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);box-shadow:0 -8px 24px rgba(107,45,134,.12);padding:12px 16px calc(12px + env(safe-area-inset-bottom))}.bar>div{max-width:520px;margin:auto}
+button.go{width:100%;padding:16px;border:0;border-radius:14px;background:linear-gradient(135deg,#6B2D86,#B0399B);color:#fff;font:700 16px 'DM Sans',sans-serif;cursor:pointer}
+button.go:disabled{opacity:.45;cursor:not-allowed}
+.err{color:#C0392B;font-size:14px;min-height:20px}.ok{text-align:center;padding:50px 18px 0}
+.tick{width:76px;height:76px;border-radius:50%;background:var(--mint);color:#fff;font-size:40px;line-height:76px;margin:auto;animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}@media(prefers-reduced-motion:reduce){.tick{animation:none}}
+.ok h1{color:var(--ink);margin-top:18px}.sum{background:var(--card);border:1px dashed var(--pl);border-radius:16px;padding:16px;text-align:left;margin:20px 0}
+a{color:var(--pl)}
+</style></head><body><main id="app"></main>
+<script>
+addEventListener('error',e=>{const d=document.createElement('div');d.style='position:fixed;top:0;left:0;right:0;background:#C0392B;color:#fff;padding:8px 12px;font:13px sans-serif;z-index:99';d.textContent='Page error: '+e.message;document.body.append(d)});
+const CFG={API:'',name:'Your Salon Name',addr:'Shop 12, Main Market, Your City',hours:'Daily 10:00 AM – 8:00 PM',phone:'9999999999',insta:'https://instagram.com/yoursalon'};
+// API='' chalane par demo data dikhta hai. n8n webhook base URL yahan daalo.
+const DEMO=[{id:'S1',name:'Haircut',price:300,dur:30},{id:'S2',name:'Facial',price:800,dur:60},{id:'S3',name:'Beard trim',price:150,dur:20},{id:'S4',name:'Hair spa',price:1200,dur:60}];
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ic=n=>/spa/i.test(n)?'💆':/facial|clean/i.test(n)?'🧖':/beard|shave/i.test(n)?'🧔':/hair|cut|colou?r/i.test(n)?'✂️':/nail|mani|pedi/i.test(n)?'💅':/wax|thread/i.test(n)?'🌸':'✨';
+let svcs=[],pick=new Set(),time='',slots=[];
+async function api(p,body){if(!CFG.API){await new Promise(r=>setTimeout(r,300));
+ if(p=='services')return DEMO;if(p.startsWith('slots'))return['10:00','10:30','11:00','12:30','13:00','15:00','16:30','18:00'];return{ok:true,id:'BK'+Date.now().toString().slice(-5)}}
+ const r=await fetch(CFG.API+'/'+p,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{});if(!r.ok)throw 0;return r.json()}
+const tot=()=>{const l=svcs.filter(s=>pick.has(s.id));return{p:l.reduce((a,s)=>a+s.price,0),d:l.reduce((a,s)=>a+s.dur,0),n:l.map(s=>s.name).join(', ')}};
+function draw(){$('#app').innerHTML=`<div class="hero"><h1>${esc(CFG.name)}</h1><p>📍 ${esc(CFG.addr)}</p><p>🕐 ${esc(CFG.hours)}</p><a class="chip" href="tel:${esc(CFG.phone)}">📞 Call</a><a class="chip" href="${esc(CFG.insta)}">📷 Instagram</a></div><div class="panel">
+<h2><i>1</i>Choose services</h2><div id="sv">${svcs.map(s=>`<label class="svc ${pick.has(s.id)?'on':''}"><span class="ic">${ic(s.name)}</span><span style="flex:1"><b>${esc(s.name)}</b><span class="mut">${s.dur} min</span></span><b>₹${s.price}</b><input type="checkbox" data-id="${s.id}" ${pick.has(s.id)?'checked':''}></label>`).join('')||'<p class="mut">Loading services…</p>'}</div>
+<h2><i>2</i>Pick date and time</h2><input type="date" id="dt" min="${new Date().toISOString().slice(0,10)}"><div class="slots" id="sl"></div>
+<h2><i>3</i>Your details</h2><input type="text" id="nm" placeholder="Your name" autocomplete="name"><input type="tel" id="ph" placeholder="10-digit mobile number" inputmode="numeric" maxlength="10" autocomplete="tel">
+<div class="err" id="er"></div></div><div class="bar"><div><button class="go" id="bk" disabled>Book appointment</button></div></div>`;
+ document.querySelectorAll('#sv input').forEach(i=>i.onchange=()=>{i.checked?pick.add(i.dataset.id):pick.delete(i.dataset.id);time='';draw();$('#dt').value=window._d||'';loadSlots()});
+ $('#dt').value=window._d||'';$('#dt').onchange=e=>{window._d=e.target.value;time='';loadSlots()};['nm','ph'].forEach(i=>{$('#'+i).value=window['_'+i]||'';$('#'+i).oninput=e=>{if(i=='ph')e.target.value=e.target.value.replace(/\D/g,'');window['_'+i]=e.target.value;chk()}});$('#bk').onclick=book;paint();chk()}
+async function loadSlots(){const d=$('#dt').value;if(!d||!pick.size){slots=[];return paint()}$('#sl').innerHTML='<span class="mut">Checking free slots…</span>';
+ try{slots=(await api(`slots?date=${d}&duration=${tot().d}`)).map(x=>x.time||x)}catch{slots=[];$('#er').textContent='Could not load slots. Check your connection and try again.'}paint()}
+function paint(){const el=$('#sl');if(!el)return;el.innerHTML=slots.length?slots.map(t=>`<button class="slot ${t==time?'on':''}" data-t="${t}">${t}</button>`).join(''):(pick.size&&$('#dt').value?'<span class="mut">No free slots on this date. Try another day.</span>':'<span class="mut">Select services and a date to see free times.</span>');
+ el.querySelectorAll('.slot').forEach(b=>b.onclick=()=>{time=b.dataset.t;paint();chk()});const t=tot();$('#bk').textContent=pick.size?`Book · ${t.d} min · ₹${t.p}`:'Book appointment'}
+function chk(){const m=!pick.size?'Select at least one service.':!window._d?'Pick a date.':!time?'Pick a time slot.':(window._nm||'').trim().length<2?'Enter your name.':!/^\d{10}$/.test(window._ph||'')?'Enter a 10-digit mobile number.':'';$('#bk').disabled=!!m;$('#er').textContent=m;$('#er').style.color=m?'var(--mut)':''}
+async function book(){const b=$('#bk');b.disabled=true;b.textContent='Booking…';$('#er').textContent='';
